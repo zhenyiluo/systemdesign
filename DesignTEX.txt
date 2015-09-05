@@ -1,0 +1,21 @@
+TEX - Don Knuth
+
+Text: 
+	1. Define character set/mathmatical symbol unicode. 
+	2. Uniformize character rectangular bounding box for different character sizes.
+		Key problem is how to resemble these rectanglar components.
+	3. Define character font.
+	4. Handle left/central/right alignment.
+	5. Define set of templates for users.
+	6. Word Wrap.
+	7. Display characters.
+	8. Section numbering: Body/Section/SubSection/SubsubSecition (tree structure).
+	9. Cross referencing: save reference in a hashmap, behaves similar as hyperlink. 
+	10. Index generation: use redbalck tree to indext contents.
+	11. Use 2D array of bits to represent each symbol, referred as bit-mapped representation. This approach could leads to huge documents and font library, since different sizes of the same sybol need to be individually mapped.
+	12. Better apprach is to define symbols using mathematical function. Use a language that supports quadratic and cubic functions, and elementary graphics transformation (rotation, interpolation, scaling). Program parameters like: aspect ratio, font slant, stroke width
+	13. Support color
+	14. Output standard page description format (PDF).
+List/Figure：
+	1. Define (vertical/horizontal) spacing
+	2. Re-encode image
