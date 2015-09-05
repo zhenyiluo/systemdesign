@@ -1,0 +1,18 @@
+public Set<Video> match(Set<Video> input){
+	preProcessHeaders.
+	StandardizeFormat. (also need to consider different compression rate, different resolution)
+	categorize input(title, content) and perform match in small subset of input and target videos.
+	Extract video distinguishing factors and perform match
+	fuzzy match first and filter out later.
+	determine similarity and define threshold
+	handle false positive and false negative
+	system requirement (system response, fault over, performance, concurrency)
+	Signature the normalized video:
+		1. Assign 0 or 1 to each frame based on whether it has more or less brightness than average.
+		2. 3 bit measure of red, green, and blue intensity for each frame.
+		3. Taking into account the regions on individual frame.
+}
+
+Non algorithmic approach:
+	1. Let users flag videos that infringe copyright by rewarding them.
+	2. Looking at meta information in the video header.
