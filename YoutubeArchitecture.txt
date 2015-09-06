@@ -1,0 +1,87 @@
+http://highscalability.com/youtube-architecture
+
+Recipe for handling rapid growth
+
+while(true){
+	identify_and_fix_bottleneck();
+	drink();
+	sleep();
+	notice_new_bottleneck();	
+}
+
+Evolution of scalability for:
+	1. web servers
+	2. video servers
+	3. thumbnail servers
+	4. databases.
+
+1. Web servers:
+	NetScaler: load balancer, cache static content
+	Webserver: apache  Appserver: python app server
+	databases.
+	RUn on linux.	
+	Scale by adding machines.
+	Spending time on waiting RPC calls (bottleneck).
+	Is python fast enough?
+	<< 100 ms page rending time.
+	psyco is used to speed up python. convert to c.
+	c extensions (encription).
+	pre-generate, cached html.
+	cache html insead of generate it each time.
+
+2. Video servers.
+	cost of bandwidth, hardware, power consumption.
+	each video is hosted by "mini-cluster" (redundancy)
+	huge win: apache(high context switch) -> lighttpd
+	single process -> multi process
+	third party CDNs store most popular content.
+	Performance characteristics
+	Simple network path/commodity hardware.
+	Handle random seeks (SATA tweaks, etc.).
+
+3. Thumbnails servers.
+	120*90 5k each, each video has about 4 thumbnails.
+	thumbnails concentrate on small number of machines.
+	Difficult: many small objects, disk seeks, high # of requests per second.
+	unified pool -> multiple pools.
+	There is a directory limit on number of files on a directory.
+
+	apache: high load, low performance.
+	Squid is better (reverse proxy)
+	lighttd is even better. 
+	Each process has a separate cache. 
+	Modify lighttd: delegate all of the disk reads into separate worker threads.
+	Move to Gooles' bigtable. Goole distribued data store.
+	Fast and tolerent.
+
+4. Databases.
+	MySql. (one database.)
+	stores metadata (users, name, password, description, but not videos!)..
+	Load spikes? Lease most hardwares.
+	Database swapping. Linux 2.4 kernel. Swap out mysql.
+	delete the swap function from the kernel.
+	Db optiimization, 
+	query, batch jobs, memcache, app server caching.
+	Store data in memory.
+	DB replication. (write go to master: asynchronous process, read could go to slaves.)
+	Replication lag, replication is asynchronous, different slave machins might have different
+	cpus.
+	Replication can be bottleneck, read waits the long write finish.
+	Replication threads.
+	DB caching priming, reduce replica cache.
+	Replication bug is hard to reproduce and fix.
+	Introduce replica pools.
+	Split replica into two pools (video watch / general)
+	RAID 10, 10 disks. DB RAID tweaking, making it more aggresively schedule disk I/O.
+	Database partioning/sharding
+	Pros: 1. spread writes and reads
+		  2. much better locally cache, less I/O.
+	Deal with bottlenecks.
+
+
+
+
+
+
+
+
