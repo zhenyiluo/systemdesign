@@ -1,0 +1,178 @@
+CS75 (Summer 2012) Lecture 9 Scalability Harvard Web Development David Malan
+https://www.youtube.com/watch?v=-W9F__D3oY4
+
+
+How to scale servers.
+
+Web hosts.
+
+1.Considerations about looking for hosts company.
+	Hosts restriction
+	FTP/HTTP
+	FTP (sends along username/password)
+	storage/bandwidth/concurrency
+	VPS (Virtual private server) vs. Shared hosts.
+	VPS use super powerful computer.
+
+
+	VPS more expensive and secure than shared hosts.
+	Amazon web service is a VPS. (Amazon elastic cloud, you websits might become super popular suddenly).
+
+
+2. Scaling 
+	Vertical or Horizontal scaling.
+	Vertical : super computer: more cpu, more cores(Dual cores, Quad cores, operating system is scheduling, still serially), more memories.
+	How to utilize thse computing resource.
+	
+	(SATA/PATA (mechanic drives) SSD (solid state drive)
+	Hard drives.
+	SATA: 3.5 inch for desktop, 2.5 inch for laptop.
+	Every facebook update requires write/read database, touch disk a lot. )
+
+	Horizontal: cluster/cloud
+	Rather than get super machines. get cheap multiple machines.
+	Single server -> load balancer.
+	Distribute the requests to different backend servers. (Load balancing).
+	Load balancer exposes the public ip address, load balancer routes the request.
+	Public ip vs private ip: 192.168.0.1 (ipv4 vs ipv6)
+	Load balancer -> server (TCP/IP)
+	Load balancer algorithm:
+	1. Based on load (How busy are you?). Complicated to implement.
+	2. Having dedicated servers:(HTML, GFS, movie files) different url/host names.
+	3. Round-robin. Simple. enumarate the ip address. Down side: some servers are busier than others. Server goes down. Different requests from the same user would go to different servers. Solution: Cache response.
+	TTL expiration.
+	4. Randomize. 
+
+	php based website, sessions broken in load balancer mode. Login again each time, session cookie on each server. shopping cart problem, aggregate different shopping items in different servers.
+	Session might need to send request to the same server. Load balancer cache the request destination.
+
+	Server model redundancy.
+	How about disk redundancy. 
+	Multiple hard drives.
+	Decrease the probability of downtime, avoid data lost.
+	RAID-0 (Two hard drives, but not write at the same time)
+	RAID-1 (Mirror data, write in two places, one drive can die) sacrify 1/2
+	RAID-5 (Three drives, Five drives, one of them use for redundancy) sacrify 1/5
+	RAID-6 (Any two drives can die.)
+	RAID-10 (Four drives.)
+	Multiple power supply. (Power redundancy).
+
+	Avoid Single point of failure:
+	Servers:
+	Fiber Channel: very expensive
+	Network file system
+	Mysql server
+
+	Load balancer:
+	Software: HAProxy/ELB/LVS (Linux virtual system)
+	Hardware: $100K a pair of load balancers. (Support contract).
+
+	Sticky sessions:(Endup the same session and backend server.)
+	Shared storage. Cookies
+	Not good to store shopping cart infomation in cookie. (Violate privacy)
+	Store id of the server in cookie. (Downside: what about the backend ip change, reveal backend ip schema)
+!!!	Better to store big random number, let load balancer remember the backend private server ip.
+
+3. PHP Accelarator (Php, python, ruby).
+	Cache.
+	Optimize code.
+
+4. Caching
+	Value change, stale values.
+	memcache
+	File basec caching approach.
+	.html file stored in db or cache. 
+	No need to do page regeneration each time.
+	Has space problem, more read than write.
+	Static html, refactor the header out using php, save storage.
+	MySQL query cache.
+	query_cache=1 (first time slow, following times much quickly)
+
+	memcached (facebook), behaves like a hashtable cache.
+	store in ram, used in all sorts of languages.
+	memcached_connect
+	user = memcache_get(memcache, id)
+	if(user == null){
+		go to db
+		and save in memcache.
+		dbh = new PDO(...);
+		result = dbh-> query.
+		user = result->fetch
+		memcache_set(memcache, user_id, user); (store key value pairs)
+	}
+
+	cache could get big, ran out of cache, get rid of the oldest items, clean up periodically.
+	"garbage collection"- expire objects in memory.
+	LRU cache.
+
+	Facebook (read or write heavy? read more common than write)
+	Cache is more compelling.
+
+	Mysql opttimization.
+	Storage engine, underlying format.
+
+5. Replication
+	Master slaves architecture
+	Upside: roboustness, avoid single point of failure, redundancy
+	Promtoe slave to master automatically by script.
+
+	Q: How might facebook use this topology?
+	A: replication increase concurrency. (more read/query could happen at the same time).
+	More read than write. Slave could also be used to process read requests. Write has to go to master.
+	Distinguish read servers and write servers.
+
+	Master-Master setup.
+	Write to either of them, copy get replicated on both.
+	Webservers' multi-tier architecture.
+
+	First tier load balancer route requests to web servers, web servers send write requests to MySql master (or master-master),
+	and send read requests to another tier of load balancer, which would route requests to different MySql slaves.
+	
+	The two layers of load balancer could be physically be the same load balancer.
+	Master- master mode (active - active mode). This reduce single point of failure.
+	Listen to heartbeat from pairs.
+	
+	Redundancy has two modes:
+	1. Master -master: active active
+	2. Master -slave: active passive
+
+	Multiple load balancer -> partioning
+	A-M cluster   N-Z cluster (partioning users by last name start from A to M to one cluster of servers, 
+	last name starting from N to Z to another cluster of servers)
+	Ex. Harvard students go to one cluster, MIT students go to another.
+	
+	HA (High availability).
+
+6. Example
+	security- firewall
+	sticky sessions using load balancer(use cookie, big random number, save the mapping table on load balancer)
+	factor out db from web servers. shared db.
+	using load balancer to connect to two master dbs, cross connect? (load balance db requests).
+
+	How each server connect to two different load balancers? plug everything int to a switch?
+	Comes to Network redundancy:
+	Use two swithces, one cable goes to one switch, one cable goes to another switch
+	Be careful not to create loops.
+
+These combins together guarantee you have:
+	Scalability, redundancy, high probability of up time, resilience against failure
+
+	Data center could fail?
+	EC2:
+	Availability zone: (data centers in different locations).
+	Different cities, west coast, south africa, asia.
+	tornado, hurricane.
+
+	data center availability zone. (load balancer on DNS levels).
+
+	If data center goes down, and your web browser happens to cache the ip address of that building
+	then you have to wait the TTL expires (minutes to hours). Then you would be rerouted to something else.
+
+	Security concern, only traffic allowed to connect to data centers: ports: TCP80, SSL443.
+	Offload ssl to tcp on first layer of load balancer, keep everything unencripted in intranet.
+	Don't need to to put SSL certificate everywhere. Just put that certificate in the first layer load balancer.
+
+	Traffic between websers and db.
+	TCP 3306: port number MySql use.
+	The principle of least priviledges, only open doors to ppl actually go through, otherwise you invite unexpected behaviors. Someone might take advantages of that.
+
