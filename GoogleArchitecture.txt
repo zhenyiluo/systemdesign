@@ -1,0 +1,69 @@
+Video: Building large system at google: (Google tech talks).
+The king of scalability, the goal is always to build a higher performing higher scaling infrastructure to support the products.
+
+How much information is out there in the world?
+
+Google products: (mix of products).
+Google search/ Google maps/ Google video/ Google chat/ Gmail / Blogger
+
+Google's explosive computational requirements
+
+Create large scale and high performance infrastructure.
+
+Google file system (Large distributed file systems)
+Google has unique file system requirements:
+	1. High read/ write bandwithd
+	2. High availability
+	3. Rouboutness
+	etc.
+
+Google cluster setup:
+Masters, loadbalancing, replication, transform data across nodes automatically.
+
+One master per cluster?
+Depends: 1. Sometimes one master
+		 2. Sometimes multiple masters: leader election
+
+Multiple instances of GFS?
+Yes.
+
+Applications can use existing GFS instance or create new ones.
+Leader elections (one data center / multiple data centers).
+
+Chunk size: 64 MB.
+
+Mapreduce:
+Two important phases.
+Mapping phase: processes a key/value pair to generate a set of intermediate key/value pairs
+Reduction phase: aggregate all the values within that intermediate key.
+
+The run-time system takes care of the details of partitioning the input data, scheduling the program's execution across a set of machines, hanlding machine failures, and managing the required inter-machine communication. This allows programmers without any experience with parallel and distributed systems to easily utilize the resource of a large distributed system.
+
+The mapreduce system has three different types of servers:
+1. Master server: assign user tasks to map and reduce servers, tracks the state of the tasks.
+2. Map server: accept user input and performs map operations on them, the results are written into intermediate
+files.
+3. Reduce server: accept intermediate files produced by map servers and perform reduce operations on them.
+
+Compression:
+Since servers are not CPU bounded, the data transferred between map server and reduce server are compressed inorder to save the bandwidth and I/O.
+Examples: word count, sorting, indexing pipeline , filtering.
+A lot of problems can not be solved by mapreduce, need to build computation model for mapreduce work.
+
+How to resolve straggler problem?
+A computation that is going to be slower than others which holds up everyone, this could happen because of slow I/O (bad controller), CPU spike. Solution is to run multiple of the same computations and when one is done kill alll the rest.
+
+
+Bigtable works on top of GFS:
+Scaling, 
+
+GFS is a storage model, big table use GFS.
+Two different layers (big table vs GFS).
+
+Google has more than 200 GFS clusters, each cluster can have 1000 to 5000 machines.
+More than 6000 Mapreduce applications.
+
+Bigtabl stores billionn of URLs, hundreds of terabytes of satelite images, and preferences for hundreds of millions of users.
+
+Master servers keep metadata, chunk servers stores actual data on disk.
+
