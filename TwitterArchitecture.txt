@@ -1,0 +1,28 @@
+Big and small data at twitter (Jeremy Cole):
+#twdata 
+155 Million tweets per day, 1 Billion tweets per week.
+System need to support tweet spike.
+
+6,939 tweets per second. 460,000 new accounts per day.
+
+Use Mysql when it works.
+
+Use queues and asynchronously processing.
+
+Innodb db. Gizard.
+
+Mysql 
+Bad id generation. (Snowflake tool. Non sequential, but ordered).
+Distributed data storage framework (Gizzard).
+Not good by itself for graphs.
+Replication inefficiency sucks, lag sucks
+
+Cassandra
+Extremely high velocity writes, medium low velocity reads.
+Easy cluster expansion.
+
+Hadoop
+Unstructured, very large datasets (http logs).
+UDF in java.
+
+a lot of open source projects on github.
